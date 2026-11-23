@@ -47,8 +47,8 @@ This week we've 18 booked orders with a total value of 12345.67.
 
 ## Screenshots
 
-| Warehouse output | Processing orders table |
-|---|---|
+| Warehouse output                                         | Processing orders table                                   |
+| -------------------------------------------------------- | --------------------------------------------------------- |
 | ![Warehouse output](screenshots/02-warehouse-output.png) | ![Data Table](screenshots/03-processing-orders-table.png) |
 
 | Discord message | Successful execution |
