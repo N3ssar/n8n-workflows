@@ -1,0 +1,204 @@
+{
+  "name": "TechSales Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "2fc83068-2264-4063-8cd0-70820b00e303",
+      "name": "When chat message received",
+      "webhookId": "704ae5cc-8af3-4dc1-9b4c-c195e483bb3d"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a sales assistant for a computer hardware store (GPUs, CPUs, etc.).\n\nTOOLS\n- Google Sheets: the store inventory. ALWAYS call it before answering any question about products, availability, prices, or specs. Never answer from memory or invent items.\n- Gmail: send a purchase request to the store owner.\n\nRULES\n1. For any product question, search the sheet first, then answer from the results only.\n2. If nothing matches, say it's not available and suggest the closest alternative from the sheet.\n3. Show at most 5 items. For each: Device_Name, Model, Unit_Price, Warranty_Years. Add other columns only if the customer asks.\n4. Keep replies short and clear. No long intros or repeated info.\n5. Reply in the customer's language.\n\nGMAIL (PURCHASE REQUEST)\nSend an email to the store owner ONLY after the customer explicitly confirms they want to buy. Never send an email for questions or price inquiries.\n\nBefore sending, make sure you have: customer name, Device_ID, product name, quantity, AND at least ONE contact method (phone OR email). The customer may provide both, but only one is required. If no contact method was given, ask: \"Please share a phone number or an email (either one is fine).\" If a contact method was given, do NOT ask for the other one. If any other required detail is missing, ask for it.\n\nAfter sending, confirm to the customer that the request was placed.\n\nEMAIL FORMAT\n- Subject: \"New Purchase Request - {Device_Name} (ID: {Device_ID})\"\n- Body: pure HTML only (no markdown, no code fences), using inline CSS and the exact structure below. Fill the values from the sheet and the conversation. Calculate Total = Unit_Price x Quantity.\n- Do not include the HTML comments in the final email.\n\nCONTACT ROWS (conditional)\n- Include the Phone row ONLY if the customer gave a phone number.\n- Include the Email row ONLY if the customer gave an email.\n- If a value was not provided, remove its entire <tr> row from the HTML. Never write \"undefined\", \"null\", \"N/A\", or an empty value.\n\n<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden\">\n  <div style=\"background:#1a73e8;color:#ffffff;padding:16px 20px\">\n    <h2 style=\"margin:0;font-size:18px\">New Purchase Request</h2>\n  </div>\n  <div style=\"padding:20px\">\n    <h3 style=\"margin:0 0 8px;font-size:15px;color:#1a73e8\">Customer</h3>\n    <table style=\"width:100%;border-collapse:collapse;font-size:14px\">\n      <tr><td style=\"padding:6px 0;color:#666;width:35%\">Name</td><td><b>{customer_name}</b></td></tr>\n      <!-- include ONLY if phone provided -->\n      <tr><td style=\"padding:6px 0;color:#666\">Phone</td><td>{customer_phone}</td></tr>\n      <!-- include ONLY if email provided -->\n      <tr><td style=\"padding:6px 0;color:#666\">Email</td><td>{customer_email}</td></tr>\n    </table>\n    <h3 style=\"margin:20px 0 8px;font-size:15px;color:#1a73e8\">Order</h3>\n    <table style=\"width:100%;border-collapse:collapse;font-size:14px\">\n      <tr><td style=\"padding:6px 0;color:#666;width:35%\">Device ID</td><td>{Device_ID}</td></tr>\n      <tr><td style=\"padding:6px 0;color:#666\">Product</td><td><b>{Device_Name}</b> ({Model})</td></tr>\n      <tr><td style=\"padding:6px 0;color:#666\">Manufacturer</td><td>{Manufacturer}</td></tr>\n      <tr><td style=\"padding:6px 0;color:#666\">Unit Price</td><td>{Unit_Price}</td></tr>\n      <tr><td style=\"padding:6px 0;color:#666\">Quantity</td><td>{Quantity}</td></tr>\n      <tr style=\"border-top:1px solid #e0e0e0\"><td style=\"padding:10px 0;color:#666\">Total</td><td><b style=\"font-size:16px\">{Total}</b></td></tr>\n    </table>\n    <p style=\"margin:20px 0 0;font-size:13px;color:#666\">Please contact the customer to confirm the order, payment, and delivery.</p>\n  </div>\n</div>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -80,
+        -192
+      ],
+      "id": "7c6658c5-e6d1-4ad1-b823-323a96b77fc7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        96
+      ],
+      "id": "fc691ae5-c3dd-4834-85a9-8ca957cb3f74",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "egk9RjGymdzOEoBI",
+          "name": "OpenAI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        16,
+        96
+      ],
+      "id": "297cb6f1-1cfd-4351-b4ab-9bc76fed011b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Inventory of computer hardware products (GPUs, CPUs, etc.). Use it to look up products by name, model, category, manufacturer, or price before answering any product question.",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Computer Hardware Inventory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hrvD0LMocpQuoda5CpuNdOKPWjOzp56usjnymzH3r2w/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hrvD0LMocpQuoda5CpuNdOKPWjOzp56usjnymzH3r2w/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        64
+      ],
+      "id": "279accf1-511c-48b0-adb6-0cc709701a4f",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Bl2fUiekuTbMdNPE",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "=owner@example.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        -80
+      ],
+      "id": "f1532c91-569b-4814-a576-d0ec8b9b0184",
+      "name": "Send a message in Gmail",
+      "webhookId": "e7c04e3c-f058-44dc-b0b4-ce104667fa14",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lwRzf2xYAglSq3wa",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "0026cbc2-7ec0-4773-9ffd-d2670a04161a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+  },
+  "nodeGroups": [],
+  "id": "j5Dwx218qQKOgc3d",
+  "tags": []
+}
