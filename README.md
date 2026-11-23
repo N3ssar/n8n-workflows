@@ -21,8 +21,7 @@ Most of the AI models in these workflows are accessed through [SovereignEG](http
 | Project | Description | Tools |
 |---------|-------------|-------|
 | [Tech Sales Bot](./tech-sales-bot) | Chatbot that answers customers using a live inventory sheet, remembers the conversation, and emails the store owner with the customer's details when they want to place an order | n8n, AI Agent, OpenAI, Google Sheets, Gmail |
-| [Customer Review Analysis](./customer-review-analysis) | Analyzes supermarket customer reviews submitted through a form and stores the results in a sheet | n8n, OpenAI, Google Sheets |
-| [Smart Car Dealership](./smart-car-dealership) | Receives a request via webhook, emails the owner, and logs it in a sheet | n8n, Webhook, Gmail, Google Sheets |
+| [Review Sentiment Analyze](./review-sentiment-analyze) | Collects supermarket reviews through an Arabic form, summarizes them and classifies their sentiment with AI, saves them to Google Sheets, and emails the owner on negative reviews | n8n, Form Trigger, LLM, Google Sheets, Gmail |
 
 > More workflows are added as I build them.
 
@@ -42,15 +41,11 @@ n8n-workflows/
 ├── tech-sales-bot/
 │   ├── workflow.json
 │   ├── README.md
-│   └── screenshot.png
-├── customer-review-analysis/
-│   ├── workflow.json
-│   ├── README.md
-│   └── screenshot.png
-└── smart-car-dealership/
+│   └── screenshots and demo images
+└── review-sentiment-analyze/
     ├── workflow.json
     ├── README.md
-    └── screenshot.png
+    └── screenshots and sample data
 ```
 
 ## Notes
